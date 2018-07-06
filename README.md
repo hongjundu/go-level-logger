@@ -3,7 +3,7 @@
 ## Features
 
 * Dynamically config log level
-* Output debug/info/notice messages to stdout, and output warn/error mssages to both stdout and stderr 
+* Output debug/info/notice messages to stdout, and output warn/error mssages to stdout/tderr 
 
 ## Examples
 
