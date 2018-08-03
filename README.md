@@ -8,7 +8,7 @@
 ## Examples
 
     import (
-        "github.com/du-hj/go-level-logger"
+        "github.com/hongjundu/go-level-logger"
     )
 
     func main() {
