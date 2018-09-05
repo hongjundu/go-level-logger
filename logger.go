@@ -2,6 +2,7 @@ package logger
 
 import (
 	"fmt"
+	"io"
 	"log"
 	"os"
 	"sync"
@@ -40,6 +41,14 @@ func InitLogger(level int) {
 	once.Do(func() {
 		stdLogger = log.New(os.Stdout, "", 0)
 		errLogger = log.New(os.Stderr, "", 0)
+	})
+}
+
+func InitLoggerWithOutput(stdOutput, errOutput io.Writer, level int) {
+	logLevel = level
+	once.Do(func() {
+		stdLogger = log.New(stdOutput, "", 0)
+		errLogger = log.New(errOutput, "", 0)
 	})
 }
 
