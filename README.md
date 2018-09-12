@@ -54,14 +54,14 @@
 
     func main() {
         stdOutputFile := &lumberjack.Logger{
-            Filename:   filepath.Join(utils.GetLogsDir(), "invoicemgr.log"),
+            Filename:   filepath.Join(utils.GetLogsDir(), "app.log"),
             MaxSize:    100, // megabytes
             MaxBackups: 3,
             MaxAge:     365, //days
         }
 
         errOutputFile := &lumberjack.Logger{
-            Filename:   filepath.Join(utils.GetLogsDir(), "invoicemgr-error.log"),
+            Filename:   filepath.Join(utils.GetLogsDir(), "app-error.log"),
             MaxSize:    100, // megabytes
             MaxBackups: 3,
             MaxAge:     365, //days
