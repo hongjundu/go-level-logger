@@ -21,7 +21,7 @@ const (
 	LogLevelDebugTag   = "[DEBUG]"
 	LogLevelInfoTag    = "[INFO]"
 	LogLevelNoticeTag  = "[NOTICE]"
-	LogLevelWarningTag = "[WRAN]"
+	LogLevelWarningTag = "[WARN]"
 	LogLevelErrorTag   = "[ERROR]"
 )
 
