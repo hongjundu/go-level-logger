@@ -5,7 +5,7 @@ import (
 )
 
 func main() {
-	logger.InitLogger(logger.LogLevelDebug)
+	logger.Init(logger.LogLevelDebug, "example", "/tmp", 100, 3, 365)
 
 	logger.Debugf("debug message")
 	logger.Infof("info message")
