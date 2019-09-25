@@ -32,14 +32,18 @@ import (
 // max log file ages, in days. 30 by default
 
 func Init(logLevel int, logFileName string, logFileDir string, maxLogFileSize, maxLogFileBackups, maxLogFileAge int) {
-	if len(logFileDir) == 0 || strings.HasPrefix(logFileDir, ".") {
+	if len(logFileDir) == 0 {
+		InitLogger(logLevel)
+		Infof("[logger] no log file dir configed")
+		return
+	}
+	if strings.HasPrefix(logFileDir, ".") {
 		var err error
 		logFileDir, err = generateFileDir(logFileDir)
 		if err != nil {
 			InitLogger(logLevel)
-			Infof("[logger] %v", err.Error())
+			Errorf("[logger] %v", err.Error())
 		}
-
 	}
 
 	dirExists, _ := dirExists(logFileDir)
