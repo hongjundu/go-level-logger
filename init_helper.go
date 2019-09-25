@@ -6,6 +6,7 @@ import (
 	"io"
 	"os"
 	"path/filepath"
+	"strings"
 )
 
 // logLevel:
@@ -31,10 +32,14 @@ import (
 // max log file ages, in days. 30 by default
 
 func Init(logLevel int, logFileName string, logFileDir string, maxLogFileSize, maxLogFileBackups, maxLogFileAge int) {
-	if len(logFileDir) == 0 {
-		InitLogger(logLevel)
-		Infof("[logger] log path is not set")
-		return
+	if len(logFileDir) == 0 || strings.HasPrefix(logFileDir, ".") {
+		var err error
+		logFileDir, err = generateFileDir(logFileDir)
+		if err != nil {
+			InitLogger(logLevel)
+			Infof("[logger] %v", err.Error())
+		}
+
 	}
 
 	dirExists, _ := dirExists(logFileDir)
@@ -91,4 +96,14 @@ func dirExists(filePath string) (bool, error) {
 			return true, err
 		}
 	}
+}
+
+//accept relative path for example:"./". And generate log file dir, default the current working directory
+func generateFileDir(logFileDir string) (string, error) {
+	exPath, err := filepath.Abs("./")
+	if err != nil {
+		return "", err
+	}
+	logFileDir = filepath.Join(exPath, logFileDir)
+	return logFileDir, nil
 }
