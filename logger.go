@@ -5,6 +5,8 @@ import (
 	"io"
 	"log"
 	"os"
+	"path/filepath"
+	"runtime"
 	"sync"
 	"time"
 )
@@ -161,10 +163,12 @@ func Panicln(v ...interface{}) {
 }
 
 func Fatal(v ...interface{}) {
+	logPrintln(errLogger, LogLevelErrorTag, v...)
 	log.Fatal(v...)
 }
 
 func Fatalf(format string, v ...interface{}) {
+	logPrintf(errLogger, LogLevelErrorTag, format, v...)
 	log.Fatalf(format, v...)
 }
 
@@ -174,18 +178,36 @@ func Fatalln(v ...interface{}) {
 
 func logPrint(logger *log.Logger, level string, v ...interface{}) {
 	currtime := time.Now().Format(LogTimeFormat)
-	newV := append([]interface{}{currtime, level}, v...)
+	fileinfo := fileline()
+	newV := append([]interface{}{currtime, fileinfo, level}, v...)
 	logger.Print(newV)
 }
 
 func logPrintf(logger *log.Logger, level string, format string, v ...interface{}) {
 	currtime := time.Now().Format(LogTimeFormat)
-	newV := append([]interface{}{currtime, level}, fmt.Sprintf(format, v...))
+	fileinfo := fileline()
+	newV := append([]interface{}{currtime, fileinfo, level}, fmt.Sprintf(format, v...))
 	logger.Println(newV)
 }
 
 func logPrintln(logger *log.Logger, level string, v ...interface{}) {
 	currtime := time.Now().Format(LogTimeFormat)
-	newV := append([]interface{}{currtime, level}, v...)
+	fileinfo := fileline()
+	newV := append([]interface{}{currtime, fileinfo, level}, v...)
 	logger.Println(newV)
+}
+
+func fileline() string {
+	_, file, line, ok := runtime.Caller(3)
+	if ok {
+		file = filepath.Base(file)
+	}
+	if len(file) == 0 {
+		file = "???"
+	}
+	if line < 0 {
+		line = 0
+	}
+
+	return fmt.Sprintf("%s:%d", file, line)
 }
