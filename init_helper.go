@@ -66,6 +66,7 @@ func Init(logLevel int, logFileName string, logFileDir string, maxLogFileSize, m
 		MaxSize:    maxSize, // megabytes
 		MaxBackups: maxBackups,
 		MaxAge:     maxAge, //days
+		LocalTime:  true,
 	}
 
 	errOutputFile := &lumberjack.Logger{
@@ -73,6 +74,7 @@ func Init(logLevel int, logFileName string, logFileDir string, maxLogFileSize, m
 		MaxSize:    maxSize, // megabytes
 		MaxBackups: maxBackups,
 		MaxAge:     maxAge, //days
+		LocalTime:  true,
 	}
 
 	stdOutput := io.MultiWriter(stdOutputFile, os.Stdout)
