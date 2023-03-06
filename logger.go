@@ -2,6 +2,7 @@ package logger
 
 import (
 	"fmt"
+	"github.com/petermattis/goid"
 	"io"
 	"log"
 	"os"
@@ -36,6 +37,7 @@ var (
 	logLevel  int
 	stdLogger *log.Logger
 	errLogger *log.Logger
+	traceMap  sync.Map
 )
 
 func InitLogger(level int) {
@@ -56,6 +58,7 @@ func InitLoggerWithOutput(stdOutput, errOutput io.Writer, level int) {
 
 func Debug(v ...interface{}) {
 	if logLevel <= LogLevelDebug {
+		GetTraceId(goid.Get())
 		logPrint(stdLogger, LogLevelDebugTag, v...)
 	}
 }
@@ -179,21 +182,21 @@ func Fatalln(v ...interface{}) {
 func logPrint(logger *log.Logger, level string, v ...interface{}) {
 	currtime := time.Now().Format(LogTimeFormat)
 	fileinfo := fileline()
-	newV := append([]interface{}{currtime, fileinfo, level}, v...)
+	newV := append(getLogPrefixInfo(currtime, fileinfo, level), v...)
 	logger.Print(newV)
 }
 
 func logPrintf(logger *log.Logger, level string, format string, v ...interface{}) {
 	currtime := time.Now().Format(LogTimeFormat)
 	fileinfo := fileline()
-	newV := append([]interface{}{currtime, fileinfo, level}, fmt.Sprintf(format, v...))
+	newV := append(getLogPrefixInfo(currtime, fileinfo, level), fmt.Sprintf(format, v...))
 	logger.Println(newV)
 }
 
 func logPrintln(logger *log.Logger, level string, v ...interface{}) {
 	currtime := time.Now().Format(LogTimeFormat)
 	fileinfo := fileline()
-	newV := append([]interface{}{currtime, fileinfo, level}, v...)
+	newV := append(getLogPrefixInfo(currtime, fileinfo, level), v...)
 	logger.Println(newV)
 }
 
@@ -210,4 +213,29 @@ func fileline() string {
 	}
 
 	return fmt.Sprintf("%s:%d", file, line)
+}
+
+func GetTraceId(goroutineId int64) (traceId string) {
+	if val, ok := traceMap.Load(goroutineId); ok {
+		if traceId, ok = val.(string); ok {
+			return
+		}
+	}
+	return
+}
+
+func StoreTraceId(goroutineId int64, traceId string) {
+	traceMap.Store(goroutineId, traceId)
+}
+
+func ClearTraceId(goroutineId int64) {
+	traceMap.Delete(goroutineId)
+}
+
+func getLogPrefixInfo(currtime string, fileinfo string, level string) []interface{} {
+	traceId := GetTraceId(goid.Get())
+	if len(traceId) == 0 {
+		return []interface{}{currtime, fileinfo, level}
+	}
+	return []interface{}{currtime, fileinfo, level, fmt.Sprintf("[%s]", traceId)}
 }
