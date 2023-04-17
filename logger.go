@@ -2,6 +2,7 @@ package logger
 
 import (
 	"fmt"
+	"gopkg.in/natefinch/lumberjack.v2"
 	"io"
 	"log"
 	"os"
@@ -32,10 +33,13 @@ const (
 )
 
 var (
-	once      sync.Once
-	logLevel  int
-	stdLogger *log.Logger
-	errLogger *log.Logger
+	once           sync.Once
+	logLevel       int
+	stdLogger      *log.Logger
+	errLogger      *log.Logger
+	stdOutputFile  *lumberjack.Logger
+	errOutputFile  *lumberjack.Logger
+	rotateEveryDay bool
 )
 
 func InitLogger(level int) {
@@ -51,6 +55,30 @@ func InitLoggerWithOutput(stdOutput, errOutput io.Writer, level int) {
 	once.Do(func() {
 		stdLogger = log.New(stdOutput, "", 0)
 		errLogger = log.New(errOutput, "", 0)
+
+		if rotateEveryDay {
+			go func() {
+				// calculate duration until next midnight
+				now := time.Now()
+				nextMidnight := now.Add(time.Hour * 24)
+				nextMidnight = time.Date(nextMidnight.Year(), nextMidnight.Month(), nextMidnight.Day(), 0, 0, 0, 0, time.Local)
+				durationUntilMidnight := nextMidnight.Sub(now)
+
+				// wait until 0:00
+				time.Sleep(durationUntilMidnight)
+
+				// rotate log file at 0:00 every day
+				ticker := time.NewTicker(24 * time.Hour)
+				for {
+					select {
+					case <-ticker.C:
+						// rotate log to new file
+						stdOutputFile.Rotate()
+						errOutputFile.Rotate()
+					}
+				}
+			}()
+		}
 	})
 }
 

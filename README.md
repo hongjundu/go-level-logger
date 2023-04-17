@@ -43,3 +43,21 @@
         logger.Warnf("warn message")
         logger.Errorf("error message")
     }
+
+### Customize rotate log output (Rotate log  at 00:00:00 every day)
+
+    package main
+
+    import (
+        "github.com/hongjundu/go-level-logger"
+    )
+
+    func main() {
+        logger.InitRotateLogger(logger.LogLevelDebug, "example", "/tmp", 100, 3, 365)
+
+        logger.Debugf("debug message")
+        logger.Infof("info message")
+        logger.Noticef("notice message")
+        logger.Warnf("warn message")
+        logger.Errorf("error message")
+    }
