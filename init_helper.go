@@ -84,7 +84,7 @@ func Init(logLevel int, logFileName string, logFileDir string, maxLogFileSize, m
 }
 
 func InitRotateLogger(logLevel int, logFileName string, logFileDir string, maxLogFileSize, maxLogFileBackups, maxLogFileAge int) {
-	rotateEveryDay = true
+	rotateLog = true
 	Init(logLevel, logFileName, logFileDir, maxLogFileSize, maxLogFileBackups, maxLogFileAge)
 
 }

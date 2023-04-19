@@ -2,6 +2,7 @@ package logger
 
 import (
 	"fmt"
+	"github.com/robfig/cron/v3"
 	"gopkg.in/natefinch/lumberjack.v2"
 	"io"
 	"log"
@@ -33,13 +34,13 @@ const (
 )
 
 var (
-	once           sync.Once
-	logLevel       int
-	stdLogger      *log.Logger
-	errLogger      *log.Logger
-	stdOutputFile  *lumberjack.Logger
-	errOutputFile  *lumberjack.Logger
-	rotateEveryDay bool
+	once          sync.Once
+	logLevel      int
+	stdLogger     *log.Logger
+	errLogger     *log.Logger
+	stdOutputFile *lumberjack.Logger
+	errOutputFile *lumberjack.Logger
+	rotateLog     bool
 )
 
 func InitLogger(level int) {
@@ -56,28 +57,14 @@ func InitLoggerWithOutput(stdOutput, errOutput io.Writer, level int) {
 		stdLogger = log.New(stdOutput, "", 0)
 		errLogger = log.New(errOutput, "", 0)
 
-		if rotateEveryDay {
-			go func() {
-				// calculate duration until next midnight
-				now := time.Now()
-				nextMidnight := now.Add(time.Hour * 24)
-				nextMidnight = time.Date(nextMidnight.Year(), nextMidnight.Month(), nextMidnight.Day(), 0, 0, 0, 0, time.Local)
-				durationUntilMidnight := nextMidnight.Sub(now)
-
-				// wait until 0:00
-				time.Sleep(durationUntilMidnight)
-
-				// rotate log file at 0:00 every day
-				ticker := time.NewTicker(24 * time.Hour)
-				for {
-					select {
-					case <-ticker.C:
-						// rotate log to new file
-						stdOutputFile.Rotate()
-						errOutputFile.Rotate()
-					}
-				}
-			}()
+		if rotateLog {
+			c := cron.New(cron.WithSeconds())
+			//rolling strategy: rotate at 00:00:00 every day
+			c.AddFunc("0 0 0 * * ?", func() {
+				stdOutputFile.Rotate()
+				errOutputFile.Rotate()
+			})
+			c.Start()
 		}
 	})
 }
