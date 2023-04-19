@@ -30,17 +30,23 @@ const (
 )
 
 const (
+	RotateStrategyPerHour = iota + 1
+	RotateStrategyPerDay
+)
+
+const (
 	LogTimeFormat = "2006-01-02 15:04:05:123.000"
 )
 
 var (
-	once          sync.Once
-	logLevel      int
-	stdLogger     *log.Logger
-	errLogger     *log.Logger
-	stdOutputFile *lumberjack.Logger
-	errOutputFile *lumberjack.Logger
-	rotateLog     bool
+	once              sync.Once
+	logLevel          int
+	stdLogger         *log.Logger
+	errLogger         *log.Logger
+	stdOutputFile     *lumberjack.Logger
+	errOutputFile     *lumberjack.Logger
+	rotateLog         bool
+	rotateLogStrategy int
 )
 
 func InitLogger(level int) {
@@ -59,8 +65,12 @@ func InitLoggerWithOutput(stdOutput, errOutput io.Writer, level int) {
 
 		if rotateLog {
 			c := cron.New(cron.WithSeconds())
+			spec := "0 0 0 * * ?"
+			if rotateLogStrategy == RotateStrategyPerHour {
+				spec = "0 0 */1 * * ?"
+			}
 			//rolling strategy: rotate at 00:00:00 every day
-			c.AddFunc("0 0 0 * * ?", func() {
+			c.AddFunc(spec, func() {
 				stdOutputFile.Rotate()
 				errOutputFile.Rotate()
 			})

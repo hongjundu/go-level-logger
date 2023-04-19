@@ -83,10 +83,13 @@ func Init(logLevel int, logFileName string, logFileDir string, maxLogFileSize, m
 	InitLoggerWithOutput(stdOutput, errOutput, logLevel)
 }
 
-func InitRotateLogger(logLevel int, logFileName string, logFileDir string, maxLogFileSize, maxLogFileBackups, maxLogFileAge int) {
+func InitRotateLogger(logLevel int, logFileName string, logFileDir string, maxLogFileSize, maxLogFileBackups, maxLogFileAge int, rotateStrategy int) {
 	rotateLog = true
+	if rotateStrategy != RotateStrategyPerHour && rotateStrategy != RotateStrategyPerDay {
+		panic(fmt.Sprintf("invalid parameter rotateStrategy: unsupported value %d", rotateStrategy))
+	}
+	rotateLogStrategy = rotateStrategy
 	Init(logLevel, logFileName, logFileDir, maxLogFileSize, maxLogFileBackups, maxLogFileAge)
-
 }
 
 func dirExists(filePath string) (bool, error) {
