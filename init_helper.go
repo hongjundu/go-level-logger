@@ -61,7 +61,7 @@ func Init(logLevel int, logFileName string, logFileDir string, maxLogFileSize, m
 		maxAge = 30
 	}
 
-	stdOutputFile := &lumberjack.Logger{
+	stdOutputFile = &lumberjack.Logger{
 		Filename:   filepath.Join(logFileDir, fmt.Sprintf("%s.log", logFileName)),
 		MaxSize:    maxSize, // megabytes
 		MaxBackups: maxBackups,
@@ -69,7 +69,7 @@ func Init(logLevel int, logFileName string, logFileDir string, maxLogFileSize, m
 		LocalTime:  true,
 	}
 
-	errOutputFile := &lumberjack.Logger{
+	errOutputFile = &lumberjack.Logger{
 		Filename:   filepath.Join(logFileDir, fmt.Sprintf("%s-error.log", logFileName)),
 		MaxSize:    maxSize, // megabytes
 		MaxBackups: maxBackups,
@@ -81,6 +81,15 @@ func Init(logLevel int, logFileName string, logFileDir string, maxLogFileSize, m
 	errOutput := io.MultiWriter(errOutputFile, os.Stderr)
 
 	InitLoggerWithOutput(stdOutput, errOutput, logLevel)
+}
+
+func InitRotateLogger(logLevel int, logFileName string, logFileDir string, maxLogFileSize, maxLogFileBackups, maxLogFileAge int, rotateStrategy int) {
+	rotateLog = true
+	if rotateStrategy != RotateStrategyPerHour && rotateStrategy != RotateStrategyPerDay {
+		panic(fmt.Sprintf("invalid parameter rotateStrategy: unsupported value %d", rotateStrategy))
+	}
+	rotateLogStrategy = rotateStrategy
+	Init(logLevel, logFileName, logFileDir, maxLogFileSize, maxLogFileBackups, maxLogFileAge)
 }
 
 func dirExists(filePath string) (bool, error) {
