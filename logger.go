@@ -35,7 +35,7 @@ const (
 )
 
 const (
-	LogTimeFormat = "2006-01-02 15:04:05:123.000"
+	LogTimeFormat = "2006-01-02 15:04:05.000"
 )
 
 var (
